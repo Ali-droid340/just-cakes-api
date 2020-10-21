@@ -104,3 +104,12 @@ res.json({
   res.send({ error: message }, 500);
 }
 })
+app.get('/by-range',async(req,res)=>{
+  try{
+    res.send({
+      data:JSON.parse(fs.readFileSync('./constant/dates.json'))
+    })
+  }catch({message}){
+    res.send({ error: message }, 500);
+  }
+})
