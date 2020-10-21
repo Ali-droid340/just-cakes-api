@@ -53,7 +53,13 @@ app.get("/", async (req, res) => {
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
-       const range = JSON.parse(fs.readFileSync('./constant/dates.json')).find(({date:dbDate})=>dbDate==date)?.range
+       let range =undefined;
+       try{
+
+        range= JSON.parse(fs.readFileSync('./constant/dates.json')).find(({date:dbDate})=>dbDate==date).range
+       }catch(e){
+         
+       } 
        if (quantity >=range ) {
             disableDate.push(date);
           }else if(quantity >= 15){
