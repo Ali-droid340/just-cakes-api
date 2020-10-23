@@ -42,6 +42,7 @@ app.get("/", async (req, res) => {
             if (date && date.value) {
               const orderDate = new Date(date.value).toDateString();
               const index = DateAndquantity.findIndex(
+
                 ({ date }) => date === orderDate
               );
               if (index >= 0) {
@@ -53,16 +54,19 @@ app.get("/", async (req, res) => {
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
-       let range =undefined;
-       try{
+          let range = undefined;
+          try{
+            range = JSON.parse(fs.readFileSync('./constant/dates.json')).find(({date:dbDate})=>dbDate==date)?.range
 
-        range= JSON.parse(fs.readFileSync('./constant/dates.json')).find(({date:dbDate})=>dbDate==date).range
-       }catch(e){
-         
-       } 
+          }catch(e){
+
+          }
+       if(quantity <range){
+            return;
+      }
        if (quantity >=range ) {
             disableDate.push(date);
-          }else if(quantity >= 15){
+          }else if(  quantity >= 15){
             disableDate.push(date);
 
           }
@@ -81,7 +85,6 @@ app.get("/", async (req, res) => {
 
 app.post('/',async(req,res)=>{
 try{
-  console.log('req.body.dates',req.body)
   let jsonData=JSON.parse(fs.readFileSync('./constant/dates.json'));
   let check=false;
   jsonData.map((item,index)=>{
@@ -105,11 +108,11 @@ res.json({
 }
 })
 app.get('/by-range',async(req,res)=>{
-  try{
-    res.send({
-      data:JSON.parse(fs.readFileSync('./constant/dates.json'))
-    })
-  }catch({message}){
-    res.send({ error: message }, 500);
-  }
+try{
+  res.send({
+    data:JSON.parse(fs.readFileSync('./constant/dates.json'))
+  })
+}catch({message}){
+  res.send({ error: message }, 500);
+}
 })
