@@ -33,7 +33,7 @@ app.get("/", async (req, res) => {
       .list()
       .then((data) => {
         const DateAndquantity = [];
-        const rangedDates = JSON.parse(fs.readFileSync('./constant/dates.json')).data;
+        const rangedDates = JSON.parse(fs.readFileSync('./constant/dates.json'));
         
         data.forEach(({ line_items }) => {
           line_items.forEach(({ properties, fulfillable_quantity }) => {
@@ -113,8 +113,9 @@ res.json({
 })
 app.get('/by-range',async(req,res)=>{
 try{
-  res.send(JSON.parse(fs.readFileSync('./constant/dates.json'))
-  )
+  res.send({
+    data:JSON.parse(fs.readFileSync('./constant/dates.json'))
+  })
 }catch({message}){
   res.send({ error: message }, 500);
 }
