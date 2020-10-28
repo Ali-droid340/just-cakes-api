@@ -56,7 +56,7 @@ app.get("/", async (req, res) => {
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
-          let range = [];
+          let range = undefined;
           try{
             for(let i = 0; i < rangedDates.length; i++)
             {
