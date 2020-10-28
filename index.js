@@ -28,12 +28,13 @@ const service = new Orders(
 app.get("/", async (req, res) => {
   
   const disableDate = [];
-
   try {
     await service
       .list()
       .then((data) => {
         const DateAndquantity = [];
+        const rangedDates = JSON.parse(fs.readFileSync('./constant/dates.json')).data;
+        
         data.forEach(({ line_items }) => {
           line_items.forEach(({ properties, fulfillable_quantity }) => {
             const quantity = fulfillable_quantity;
@@ -48,28 +49,31 @@ app.get("/", async (req, res) => {
               if (index >= 0) {
                 DateAndquantity[index].quantity += quantity;
               } else {
-                DateAndquantity.push({ date: orderDate, quantity });
+                const dateToPush = { date: orderDate, quantity };
+                DateAndquantity.push(dateToPush);
               }
             }
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
-          let range = undefined;
+          let range = [];
           try{
-            range = JSON.parse(fs.readFileSync('./constant/dates.json')).find(({date:dbDate})=>dbDate==date).range
-
+            for(let i = 0; i < rangedDates.length; i++)
+            {
+              const dbDate = rangedDates[i].date;
+              if(dbDate == date)
+                range = rangedDates[i].range
+              else if(rangedDates[i].range == 0 && !disableDate.find(x => x == dbDate))
+                disableDate.push(dbDate)
+            }
           }catch(e){
-
           }
        if(quantity <range){
             return;
       }
-       if (quantity >=range ) {
+       if (quantity >=range || quantity >= 15) {
             disableDate.push(date);
-          }else if(  quantity >= 15){
-            disableDate.push(date);
-
-          }
+       }
         })
       })
       .catch(({ message }) => {
