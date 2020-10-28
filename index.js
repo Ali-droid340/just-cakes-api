@@ -39,7 +39,7 @@ app.get("/", async (req, res) => {
           line_items.forEach(({ properties, fulfillable_quantity }) => {
             const quantity = fulfillable_quantity;
 
-            const date = properties.find(({ name }) => name === "Buy from");
+            const date = properties.find(({ name }) => name === "Buy from" || name === "Pickup Date");
             if (date && date.value) {
               const orderDate = new Date(date.value).toDateString();
               const index = DateAndquantity.findIndex(
@@ -56,6 +56,7 @@ app.get("/", async (req, res) => {
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
+          console.log(date, quantity);
           let range = undefined;
           try{
             for(let i = 0; i < rangedDates.length; i++)
@@ -64,7 +65,7 @@ app.get("/", async (req, res) => {
 
               if(dbDate == date)
                 range = rangedDates[i].range
-              else if(rangedDates[i].range <= quantity && !disableDate.find(x => x == dbDate))
+              else if(rangedDates[i].range == quantity && !disableDate.find(x => x == dbDate))
                 disableDate.push(dbDate)
             }
           }catch(e){
