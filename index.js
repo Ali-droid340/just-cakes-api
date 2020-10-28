@@ -65,7 +65,7 @@ app.get("/", async (req, res) => {
 
               if(dbDate == date)
                 range = rangedDates[i].range
-              else if(rangedDates[i].range == quantity && !disableDate.find(x => x == dbDate))
+              else if(rangedDates[i].range <= quantity && !disableDate.find(x => x == dbDate))
                 disableDate.push(dbDate)
             }
           }catch(e){
