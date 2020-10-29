@@ -63,16 +63,17 @@ app.get("/", async (req, res) => {
               const dbDate = rangedDates[i].date;
 
               if(dbDate == date)
-                range = rangedDates[i].range
-              else if(rangedDates[i].range <= quantity && !disableDate.find(x => x == dbDate))
-                disableDate.push(dbDate)
+                range = rangedDates[i].range;
             }
-          }catch(e){
           }
-       if(quantity <range){
-            return;
-      }
-       if (quantity >=range) {
+          catch(e)
+          {
+
+          }
+          if(quantity <range){
+                return;
+          }
+          if (quantity >=range) {
             disableDate.push(date);
           }
           else if (quantity >= 15)
