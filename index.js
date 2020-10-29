@@ -56,7 +56,6 @@ app.get("/", async (req, res) => {
           });
         });
         DateAndquantity.forEach(({ date, quantity }) => {
-          console.log(date, quantity);
           let range = undefined;
           try{
             for(let i = 0; i < rangedDates.length; i++)
@@ -73,9 +72,11 @@ app.get("/", async (req, res) => {
        if(quantity <range){
             return;
       }
-       if (quantity >=range || quantity >= 15) {
+       if (quantity >=range) {
             disableDate.push(date);
-       }
+          }
+          else if (quantity >= 15)
+            disableDate.push(date);
         })
       })
       .catch(({ message }) => {
@@ -109,7 +110,6 @@ res.json({
   success:true
 })
 }catch({ message }) {
-  console.log(message)
   res.send({ error: message }, 500);
 }
 })
