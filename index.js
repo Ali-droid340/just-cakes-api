@@ -55,6 +55,7 @@ app.get("/", async (req, res) => {
             }
           });
         });
+        const comparedRanges = []
         DateAndquantity.forEach(({ date, quantity }) => {
           let range = undefined;
           try{
@@ -62,8 +63,10 @@ app.get("/", async (req, res) => {
             {
               const dbDate = rangedDates[i].date;
 
-              if(dbDate == date)
+              if(dbDate == date){
                 range = rangedDates[i].range;
+                comparedRanges.add(i);
+              }
             }
           }
           catch(e)
@@ -76,6 +79,12 @@ app.get("/", async (req, res) => {
           else if (quantity >= 15)
             disableDate.push(date);
         })
+
+        for(let i = 0; i < rangedDates.length; i++)
+        {
+          if(!comparedRanges.find(x => x == i))
+            disableDate.push(rangedDates[i].date)
+        }
       })
       .catch(({ message }) => {
         res.send({ error: message }, 500);
