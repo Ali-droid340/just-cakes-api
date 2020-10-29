@@ -70,9 +70,6 @@ app.get("/", async (req, res) => {
           {
 
           }
-          if(quantity <range){
-                return;
-          }
           if (quantity >=range) {
             disableDate.push(date);
           }
