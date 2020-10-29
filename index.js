@@ -82,7 +82,7 @@ app.get("/", async (req, res) => {
 
         for(let i = 0; i < rangedDates.length; i++)
         {
-          if(!comparedRanges.find(x => x == i))
+          if(!comparedRanges.find(x => x == i) && rangedDates[i].range == 0)
             disableDate.push(rangedDates[i].date)
         }
       })
