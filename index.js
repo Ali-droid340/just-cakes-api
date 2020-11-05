@@ -3,6 +3,14 @@ var cors = require("cors");
 const bodyParser=require('body-parser')
 const fs=require('fs')
 var app = express();
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+  host     : '50.62.177.41',
+  user     : 'heroku',
+  password : 'sOFp8YL0kiXP',
+  database:'calander'
+});
+ 
 
 app.use(cors());
 const port = process.env.PORT || 3000;
@@ -31,10 +39,16 @@ app.get("/", async (req, res) => {
   try {
     await service
       .list()
-      .then((data) => {
+      .then( async (data) => {
         const DateAndquantity = [];
-        const rangedDates = JSON.parse(fs.readFileSync('./constant/dates.json'));
-        
+        const selectDates =new Promise(resolve=>{
+          connection.query('SELECT * from manage_dates', function (error, results, fields) {
+            if (error) throw error;
+            resolve(results)
+          }); 
+        });
+      const rangedDates=  await selectDates;
+    
         data.forEach(({ line_items }) => {
           line_items.forEach(({ properties, fulfillable_quantity }) => {
             const quantity = fulfillable_quantity;
@@ -64,7 +78,7 @@ app.get("/", async (req, res) => {
               const dbDate = rangedDates[i].date;
 
               if(dbDate == date){
-                range = rangedDates[i].range;
+                range = rangedDates[i].dateRange;
                 comparedRanges.add(i);
               }
             }
@@ -82,7 +96,7 @@ app.get("/", async (req, res) => {
 
         for(let i = 0; i < rangedDates.length; i++)
         {
-          if(!comparedRanges.find(x => x == i) && rangedDates[i].range == 0)
+          if(!comparedRanges.find(x => x == i) && rangedDates[i].dateRange == 0)
             disableDate.push(rangedDates[i].date)
         }
       })
@@ -99,31 +113,61 @@ app.get("/", async (req, res) => {
 
 app.post('/',async(req,res)=>{
 try{
-  let jsonData=JSON.parse(fs.readFileSync('./constant/dates.json'));
-  let check=false;
-  jsonData.map((item,index)=>{
-    if(item.date===req.body.date){
-      jsonData[index]=req.body;
-      check =true;
-    }
-  })
-  if(!check){
-    jsonData.push(req.body)
-  }
 
- fs.writeFileSync('./constant/dates.json',JSON.stringify(jsonData))
-//  fs.writeFileSync('./constant/range.json',JSON.stringify(req.body.range))
+  const selectDates =new Promise(resolve=>{
+    connection.query(`select * FROM manage_dates where date ='${req.body.date}'`, function (error, results, fields) {
+      if (error) throw error;
+      resolve(results)
+    }); 
+  });
+const rangedDates=  await selectDates;
+if(!Boolean(rangedDates.length)){
+  const dateInsert =new Promise(resolve=>{
+    connection.query(`INSERT INTO manage_dates (date, dateRange)
+    VALUES ('${req.body.date}', ${req.body.range});`, function (error, results, fields) {
+      if (error) throw error;
+      resolve(results)
+    }); 
+  });
+
+  await dateInsert;
+  res.json({
+    success:true
+  })
+}else{
+  const updateDate =new Promise(resolve=>{
+    connection.query(`UPDATE manage_dates SET dateRange=${req.body.range} WHERE date='${req.body.date}';`, function (error, results, fields) {
+      if (error) throw error;
+      resolve(results)
+    }); 
+  });
+  await updateDate;
 res.json({
   success:true
 })
-}catch({ message }) {
-  res.send({ error: message }, 500);
+}
+
+}catch(message) {
+  res.status(500).send({ error: message });
 }
 })
 app.get('/by-range',async(req,res)=>{
+
+
 try{
+  const selectDates =new Promise(resolve=>{
+    connection.query('SELECT * from manage_dates', function (error, results, fields) {
+      if (error) throw error;
+      resolve(results)
+    }); 
+  });
+
+  const results = await selectDates;
+  
   res.send({
-    data:JSON.parse(fs.readFileSync('./constant/dates.json'))
+    data:results.map(({date,dateRange})=>{
+      return {date,range:dateRange}
+    })
   })
 }catch({message}){
   res.send({ error: message }, 500);
