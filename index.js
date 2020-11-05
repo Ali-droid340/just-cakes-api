@@ -2,7 +2,6 @@ const express = require("express");
 
 var cors = require("cors");
 const bodyParser=require('body-parser')
-const fs=require('fs')
 var app = express();
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -71,40 +70,26 @@ app.get("/", async (req, res) => {
           });
         });
         const comparedRanges = []
+    
         DateAndquantity.forEach(({ date, quantity }) => {
           let range = undefined;
           try{
-            for(let i = 0; i < rangedDates.length; i++)
-            {
-              const dbDate = rangedDates[i].date;
-
-              if(dbDate == date){
-                range = rangedDates[i].dateRange;
-                comparedRanges.add(i);
-              }
-            }
-          }
-          catch(e)
-          {
+           range =rangedDates.find(({date:dbDate})=>{
+            return date ===dbDate
+          }).dateRange}catch(e){
 
           }
           if (quantity >=range) {
-            disableDate.push(date);
+              disableDate.push(date);
           }
           else if (quantity >= 15)
             disableDate.push(date);
         })
 
-        for(let i = 0; i < rangedDates.length; i++)
-        {
-          if(!comparedRanges.find(x => x == i) && rangedDates[i].dateRange == 0)
-            disableDate.push(rangedDates[i].date)
-        }
       })
       .catch(({ message }) => {
         res.send({ error: message }, 500);
       });
-    // res.json(JSON.parse(fs.readFileSync('./constant/dates.json')))
   } catch ({ message }) {
     res.send({ error: message }, 500);
   }
