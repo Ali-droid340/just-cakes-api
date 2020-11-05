@@ -80,12 +80,29 @@ app.get("/", async (req, res) => {
 
           }
           if (quantity >=range) {
+            if(!disableDate.includes(date)){
+
               disableDate.push(date);
+            }
           }
           else if (quantity >= 15)
+          if(!disableDate.includes(date)){
+
+      
             disableDate.push(date);
+          }
+
         })
 
+        for(let i = 0; i < rangedDates.length; i++)
+        {
+          if(!comparedRanges.find(x => x == i) && rangedDates[i].dateRange == 0){
+if(!disableDate.includes(rangedDates[i].date)){
+  disableDate.push(rangedDates[i].date)
+
+}
+          }
+        }
       })
       .catch(({ message }) => {
         res.send({ error: message }, 500);
